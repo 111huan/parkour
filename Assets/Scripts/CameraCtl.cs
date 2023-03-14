@@ -16,6 +16,6 @@ public class CameraCtl : MonoBehaviour
 
     void Update()
     {
-        transform.position = new Vector3(ball.position.x - dx, ball.position.y + 1.254f, ball.position.z - 3.622f);
+        transform.position = new Vector3(ball.position.x - dx, ball.position.y - dy, ball.position.z - dz);
     }
 }

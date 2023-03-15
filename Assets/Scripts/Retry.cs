@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class Retry : MonoBehaviour
 {
     public Transform ball;
-    public TextMesh text;
+    public Text text;
     public int TotalTime = 4;
     // Start is called before the first frame update
     void Start()

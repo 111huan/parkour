@@ -2578,11 +2578,11 @@ MonoBehaviour:
     m_MaxSize: 50
     m_Alignment: 4
     m_AlignByGeometry: 0
-    m_RichText: 0
+    m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: TEST
+  m_Text: ' '
 --- !u!1001 &1243097646
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3640,7 +3640,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ball: {fileID: 1576209557}
-  text: {fileID: 0}
+  text: {fileID: 1229840631}
   TotalTime: 4
 --- !u!1 &1637994455
 GameObject:

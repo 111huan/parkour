@@ -27,7 +27,7 @@ public class Move : MonoBehaviour
         rb.velocity = new Vector3(0, rb.velocity.y, zSpeed);
         if (state == "gas")
         {
-            gasMove();
+            //gasMove();
         }
         if (stop)
         {
@@ -54,7 +54,7 @@ public class Move : MonoBehaviour
         {
             Debug.Log("gas");
             state = "gas";
-            rb.useGravity = false;
+            rb.useGravity = true;
             stop = false;
         }
 

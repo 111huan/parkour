@@ -8,7 +8,7 @@ public class Move : MonoBehaviour
     Rigidbody rb;
     float gasSpeed = 5;
     float zSpeed = 8;
-    bool stop = false;
+    public static bool fail = false,success = false, stop = false;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -78,18 +78,22 @@ public class Move : MonoBehaviour
         if (other.gameObject.tag == "wind" && state == "gas")
         {
             Debug.Log("------FAIL------");
+            fail = true;
         }
         if (other.gameObject.tag == "thorn" && state == "solid")
         {
             Debug.Log("------FAIL------");
+            fail = true;
         }
         if (other.gameObject.tag == "DrainFloor" && state == "liquid")
         {
             Debug.Log("------FAIL------");
+            fail = true;
         }
         if (other.gameObject.tag == "success")
         {
             Debug.Log("------SUCCESS------");
+            success = true;
         }
         if(other.gameObject.tag == "drain" && state == "solid")
         {

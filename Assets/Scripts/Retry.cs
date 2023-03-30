@@ -7,13 +7,8 @@ public class Retry : MonoBehaviour
     public Transform ball;
     public Text text;
     public int TotalTime = 4;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public static bool ballFixed = false;
 
-    // Update is called once per frame
     void Update()
     {
         if (Move.fail)
@@ -29,6 +24,7 @@ public class Retry : MonoBehaviour
 
     void retry()
     {
+        ballFixed = true;
         Move.stop = true;
         //≤•∑≈À¿Õˆ∂Øª≠
         ball.position = new Vector3(ball.position.x, ball.position.y, ball.position.z - 10);

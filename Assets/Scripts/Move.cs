@@ -8,6 +8,7 @@ public class Move : MonoBehaviour
     Rigidbody rb;
     float gasSpeed = 5;
     float zSpeed = 8;
+    bool unfixed = true;
     public static bool fail = false,success = false, stop = false;
     void Start()
     {
@@ -27,7 +28,7 @@ public class Move : MonoBehaviour
         rb.velocity = new Vector3(0, rb.velocity.y, zSpeed);
         if (state == "gas")
         {
-            //gasMove();
+            gasMove();
         }
         if (stop)
         {
@@ -42,20 +43,30 @@ public class Move : MonoBehaviour
             Debug.Log("solid");
             state = "solid";
             rb.useGravity = true;
+            if (!Retry.ballFixed)
+            {
+                stop = false;
+            }
         }
         else if (Input.GetKeyDown("2"))
         {
             Debug.Log("liquid");
             state = "liquid";
             rb.useGravity = true;
-            stop = false;
+            if (!Retry.ballFixed)
+            {
+                stop = false;
+            }
         }
         else if (Input.GetKeyDown("3"))
         {
             Debug.Log("gas");
             state = "gas";
-            rb.useGravity = true;
-            stop = false;
+            rb.useGravity = false;
+            if (!Retry.ballFixed)
+            {
+                stop = false;
+            }
         }
 
         
@@ -63,13 +74,13 @@ public class Move : MonoBehaviour
 
     void gasMove()
     {
-        if (Input.GetKey(KeyCode.W))
+        if (transform.position.y<8)
         {
             transform.position = new Vector3(transform.position.x, transform.position.y + gasSpeed * Time.deltaTime, transform.position.z);
         }
-        else if (Input.GetKey(KeyCode.S))
+        else
         {
-            transform.position = new Vector3(transform.position.x, transform.position.y - gasSpeed * Time.deltaTime, transform.position.z);
+            rb.velocity = new Vector3(0, 0, zSpeed);
         }
     }
 
@@ -95,7 +106,11 @@ public class Move : MonoBehaviour
             Debug.Log("------SUCCESS------");
             success = true;
         }
-        if(other.gameObject.tag == "drain" && state == "solid")
+        if(other.gameObject.tag == "drain" && state != "liquid")
+        {
+            stop = true;
+        }
+        if (other.gameObject.tag == "door" && state != "solid")
         {
             stop = true;
         }

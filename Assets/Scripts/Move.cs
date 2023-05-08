@@ -7,7 +7,7 @@ public class Move : MonoBehaviour
     public static string state = "solid";
     Rigidbody rb;
     float gasSpeed = 5;
-    float zSpeed = 8;
+    float zSpeed = 16;
     bool unfixed = true;
     public static bool fail = false,success = false, stop = false;
     void Start()
@@ -80,7 +80,7 @@ public class Move : MonoBehaviour
         }
         else
         {
-            rb.velocity = new Vector3(0, 0, zSpeed);
+            rb.velocity = new Vector3(0, rb.velocity.y, zSpeed);
         }
     }
 

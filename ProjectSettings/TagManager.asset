@@ -3,7 +3,17 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - DrainFloor
+  - door
+  - wind
+  - liquidOnly
+  - drain
+  - ball
+  - success
+  - thorn
+  - enter
+  - out
   layers:
   - Default
   - TransparentFX

@@ -10,6 +10,7 @@ public class GenerateRoad : MonoBehaviour
     Vector3 generateStartPos;
     [SerializeField] GameObject[] ob;
     GameObject obj;
+    public static bool startGenerate = false;
 
 
     // Start is called before the first frame update
@@ -21,7 +22,11 @@ public class GenerateRoad : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (startGenerate)
+        {
+            generate();
+            startGenerate = false;
+        }
     }
 
     void generate()

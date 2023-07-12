@@ -2,32 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
-using System.IO;
-using System.Text;
 
 public class Move : MonoBehaviour
 {
     public static string state = "solid";
     public static bool newGame = true;
     Rigidbody rb;
+    ParticleSystem gasParticle;
     Text text,score;
     Slider slider;
+    Animation animSolid, animFluid;
     float gasSpeed = 5;
-    float zSpeed = 10;
-    bool unfixed = true;
+    public static float zSpeed = 10;
     public static bool fail = false, success = false, stop = true, stop1 = true;
     [SerializeField] Transform solidObj, liquidObj, gasObj;
     Vector3 solidOn, liquidOn, gasOn;
-    int totalTime = 4, nowScore = 0,bestScore;
-    Button  bt2,skip,ctn;
-    /*TextAsset txt;
-    string path;
-    FileStream file;
-    byte[] bts;*/
+    int  nowScore = 0,bestScore;
+    Button bt2, btRetry, ctn, sun, moon, cloud, skip;
+    [SerializeField] Material sky,liquidMaterial;
     void Start()
     {
-        
+        state = "gas";
+        animSolid = solidObj.gameObject.GetComponent<Animation>();
+        animFluid = liquidObj.gameObject.GetComponent<Animation>();
         bestScore = PlayerPrefs.GetInt("bestScore");
         print(bestScore);
         //slider = GameObject.Find("Slider").GetComponent<Slider>();
@@ -37,14 +34,13 @@ public class Move : MonoBehaviour
         rb.velocity = new Vector3(0, 0, zSpeed);
         solidOn = solidObj.localScale;
         liquidOn = liquidObj.localScale;
+        print(liquidOn);
         gasOn = gasObj.localScale;
-        //bt1 = GameObject.Find("Retry").GetComponent<Button>();
+        gasParticle = gasObj.gameObject.GetComponent<ParticleSystem>();
         bt2 = GameObject.Find("ToMenu").GetComponent<Button>();
         skip = GameObject.Find("Skip").GetComponent<Button>();
-        ctn = GameObject.Find("Retry").GetComponent<Button>();
-        /*txt = Resources.Load("Record") as TextAsset;*/
-        /*path = Application.dataPath + "/Resources/Record.txt";
-        file = new FileStream(path, FileMode.Create);*/
+        btRetry = GameObject.Find("Retry").GetComponent<Button>();
+        ctn = GameObject.Find("Continue").GetComponent<Button>();
     }
 
     // Update is called once per frame
@@ -53,21 +49,8 @@ public class Move : MonoBehaviour
         stateCtl();
         speedCtl();
         scoreBoard();
-        //print("stop:" + stop + " stop1:" + stop1 + " rb.v:" + rb.velocity);
     }
 
-    private void OnDisable()
-    {
-        /*if (file != null)
-        {
-            //清空缓存
-            file.Flush();
-            // 关闭流
-            file.Close();
-            //销毁资源
-            file.Dispose();
-        }*/
-    }
     void scoreBoard()
     {
         if (nowScore/2 >= bestScore)
@@ -109,43 +92,138 @@ public class Move : MonoBehaviour
             }
         }
     }
-    void stateCtl()
+
+    public void change2Gas()
     {
-        if (Input.GetKeyDown("1"))
+        if (state == "liquid")
         {
-            state = "solid";        }
-        else if (Input.GetKeyDown("3"))
-        {
-            state = "gas";
+            animSolid[animSolid.clip.name].time = animSolid[animSolid.clip.name].length;
+            animSolid[animSolid.clip.name].speed = -1;
+            animSolid.Play(animSolid.clip.name);
         }
-        else if(Input.GetKeyDown("2"))
+        gasParticle.Play();
+        state = "gas";
+    }
+    public void change2Solid()
+    {
+        if (state == "liquid")
         {
-            state = "liquid";
+            animSolid[animSolid.clip.name].time = animSolid[animSolid.clip.name].length;
+            animSolid[animSolid.clip.name].speed = -1;
+            animSolid.Play(animSolid.clip.name);
         }
+        gasParticle.Stop();
+        state = "solid";
+    }
+
+    public void change2Liquid()
+    {
         if (state == "solid")
         {
-            solidObj.localScale = solidOn;
+            animSolid[animSolid.clip.name].time = 0;
+            animSolid[animSolid.clip.name].speed = 1;
+            animSolid.Play(animSolid.clip.name);
+        }
+        gasParticle.Stop();
+        state = "liquid";
+    }
+
+    void stateCtl()
+    {
+        /*if (Input.GetKeyDown("1"))//切换到固体
+        {
+            if (state == "liquid")
+            {
+                animSolid[animSolid.clip.name].time = animSolid[animSolid.clip.name].length;
+                animSolid[animSolid.clip.name].speed = -1;
+                animSolid.Play(animSolid.clip.name);
+            }
+            gasParticle.Stop();
+            state = "solid";
+
+            //sky.color = 
+        }
+        else if (Input.GetKeyDown("2"))//切换到液体
+        {
+            if (state == "solid")
+            {
+                animSolid[animSolid.clip.name].time = 0;
+                animSolid[animSolid.clip.name].speed = 1;
+                animSolid.Play(animSolid.clip.name);
+            }
+            gasParticle.Stop();
+            state = "liquid";
+        }
+        else if (Input.GetKeyDown("3"))//切换到气体
+        {
+            if (state == "liquid")
+            {
+                animSolid[animSolid.clip.name].time = animSolid[animSolid.clip.name].length;
+                animSolid[animSolid.clip.name].speed = -1;
+                animSolid.Play(animSolid.clip.name);
+            }
+            gasParticle.Play();
+            state = "gas";
+        }*/
+
+        if (state == "solid")
+        {
+            rb.useGravity = true;
+            //sky.color = new Color(0, 0, 0);
+            if (solidObj.localScale.x < 30 && !animSolid.isPlaying)//固体渐渐出现
+            {
+                float dScale = solidObj.localScale.x;
+                solidObj.localScale = new Vector3(dScale + 25f * Time.deltaTime, dScale + 25f * Time.deltaTime, dScale + 25f * Time.deltaTime);
+            }
+            else
+            {
+                solidObj.localScale = solidOn;
+            }
             liquidObj.localScale = new Vector3(0, 0, 0);
             gasObj.localScale = new Vector3(0, 0, 0);
-            rb.useGravity = true;
-            /*if (transform.position.y > 5.4)
-            {
-                transform.position = new Vector3(transform.position.x, 5.4f, transform.position.z);
-            }*/
         }
         if (state == "liquid")
         {
-            solidObj.localScale = new Vector3(0, 0, 0);
-            liquidObj.localScale = liquidOn;
-            gasObj.localScale = new Vector3(0, 0, 0);
+            waterMaterialChange();
             rb.useGravity = true;
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                print("state:" + state + "\nisPlaying:" + animSolid.isPlaying + "\nliquid localScale:" + liquidObj.localScale);
+            }
+            if (liquidObj.localScale.x < 30 && !animSolid.isPlaying)//液体渐渐出现
+            {
+                float dScale = liquidObj.localScale.x;
+                liquidObj.localScale = new Vector3(dScale + 25f * Time.deltaTime, dScale + 25f * Time.deltaTime, dScale + 25f * Time.deltaTime);
+            }
+            else if(!animSolid.isPlaying)
+            {
+                liquidObj.localScale = liquidOn;
+                solidObj.localScale = new Vector3(0, 0, 0);
+                gasObj.localScale = new Vector3(0, 0, 0);
+            }
         }
         if(state == "gas")
         {
-            solidObj.localScale = new Vector3(0, 0, 0);
-            liquidObj.localScale = new Vector3(0, 0, 0);
-            gasObj.localScale = gasOn;
             rb.useGravity = false;
+            if (solidObj.localScale.x > 0)//原本的固体/液体模型渐渐消失
+            {
+                if (solidObj.localScale.x > 0)
+                {
+                    float dScale = solidObj.localScale.x;
+                    solidObj.localScale = new Vector3(dScale - 25f * Time.deltaTime, dScale - 25f * Time.deltaTime, dScale - 25f * Time.deltaTime);
+                }
+            }
+            else if (liquidObj.localScale.x > 0)
+            {
+                float dScale = liquidObj.localScale.x;
+                liquidObj.localScale = new Vector3(dScale - 25f * Time.deltaTime, dScale - 25f * Time.deltaTime, dScale - 25f * Time.deltaTime);
+            }
+            else if (!animSolid.isPlaying)//若animSolid已经播放完，切换成气态模型
+            {
+                solidObj.localScale = new Vector3(0, 0, 0);
+                liquidObj.localScale = new Vector3(0, 0, 0);
+                gasObj.localScale = gasOn;
+            }
         }
     }
 
@@ -204,7 +282,7 @@ public class Move : MonoBehaviour
         {
             text.text = "gas cannot pass this obstacle!";
         }
-        ctn.transform.localScale = new Vector3(1, 1, 1);
+        btRetry.transform.localScale = new Vector3(1, 1, 1);
         yield return null;
     }
 
@@ -213,7 +291,14 @@ public class Move : MonoBehaviour
     {
         stop = true;
         stop1 = true;
-        text.text = "YOU FAIL...";
+        if (nowScore / 2 <= bestScore)
+        {
+            text.text = " congrats， you got " + nowScore / 2 + " points!";
+        }
+        else
+        {
+            text.text = " congrats， you got " + nowScore / 2 + " points,"+"\nit's a new record!";
+        }
         //bt1.transform.localScale = new Vector3(1, 1, 1);
         bt2.transform.localScale = new Vector3(1, 1, 1);
     }
@@ -223,7 +308,6 @@ public class Move : MonoBehaviour
         if(promptName == "Prompt1")
         {
             text.text = "click the buttons to control the ball's state";
-            Invoke("delay",3);
         }
         else if(promptName == "Prompt2")
         {
@@ -309,9 +393,24 @@ public class Move : MonoBehaviour
             newGame = false;
             //zSpeed += 5;
         }
-        if (other.gameObject.tag == "prompt")
+        if (other.gameObject.tag == "prompt"&&!stop)
         {
+            print("prompt start");
             promptCtl(other.name);
+            stop = true;
+            stop1 = true;
+            ctn.transform.localScale = new Vector3(1, 1, 1);
         }
+    }
+
+    void waterMaterialChange()
+    {
+        float tX = 1.5f, tY = 1.5f, oX = 0.5f , oY = 0.5f;
+        Vector2 nowTiling = liquidMaterial.GetTextureScale("_MainTex");
+        Vector2 nowOffset = liquidMaterial.GetTextureOffset("_MainTex");
+        liquidMaterial.SetTextureScale("_MainTex", new Vector2(nowTiling.x + Random.Range(-1f, 1f) * Time.deltaTime,
+            nowTiling.y + Random.Range(-1f, 1) * Time.deltaTime));
+        liquidMaterial.SetTextureOffset("_MainTex", new Vector2(nowOffset.x + Random.Range(-1f, 1f) * Time.deltaTime,
+            nowOffset.y + Random.Range(-1f, 1f) * Time.deltaTime));
     }
 }

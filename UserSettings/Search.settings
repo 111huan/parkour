@@ -3,13 +3,16 @@ fetchPreview = true
 defaultFlags = 0
 keepOpen = false
 queryFolder = "Assets"
-onBoardingDoNotAskAgain = false
+onBoardingDoNotAskAgain = true
 showPackageIndexes = false
 showStatusBar = false
 scopes = {
 	"last_search.DA949528" = "recorder"
 	"OpenInspectorPreview.DA949528" = "0"
 	"currentGroup.DA949528" = "all"
+	"last_search.8C24D059" = "skybox"
+	"OpenInspectorPreview.8C24D059" = "0"
+	"currentGroup.8C24D059" = "menu"
 }
 providers = {
 	adb = {
@@ -56,6 +59,7 @@ providers = {
 objectSelectors = {
 }
 recentSearches = [
+	"a"
 ]
 searchItemFavorites = [
 ]

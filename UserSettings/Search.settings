@@ -10,9 +10,9 @@ scopes = {
 	"last_search.DA949528" = "recorder"
 	"OpenInspectorPreview.DA949528" = "0"
 	"currentGroup.DA949528" = "all"
-	"last_search.8C24D059" = "skybox"
+	"last_search.8C24D059" = "package mana"
 	"OpenInspectorPreview.8C24D059" = "0"
-	"currentGroup.8C24D059" = "menu"
+	"currentGroup.8C24D059" = "all"
 }
 providers = {
 	adb = {
@@ -59,6 +59,8 @@ providers = {
 objectSelectors = {
 }
 recentSearches = [
+	"sk"
+	"l"
 	"a"
 ]
 searchItemFavorites = [

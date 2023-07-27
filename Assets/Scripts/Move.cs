@@ -20,13 +20,18 @@ public class Move : MonoBehaviour
     int  nowScore = 0,bestScore;
     Button bt2, btRetry, ctn, sun, moon, cloud, skip;
     [SerializeField] Material sky,liquidMaterial;
+    string lastState = null;
+    Transform allBall;
     void Start()
     {
-        state = "gas";
+        stop = true;
+        stop1 = true;
+        state = "solid";
+        allBall = GameObject.Find("AllBall").transform;
+        allBall.localPosition = new Vector3(0, 5, -115);
         animSolid = solidObj.gameObject.GetComponent<Animation>();
         animFluid = liquidObj.gameObject.GetComponent<Animation>();
         bestScore = PlayerPrefs.GetInt("bestScore");
-        print(bestScore);
         //slider = GameObject.Find("Slider").GetComponent<Slider>();
         text = GameObject.Find("Text").GetComponent<Text>();
         score = GameObject.Find("ScoreBoard").GetComponent<Text>();
@@ -34,13 +39,13 @@ public class Move : MonoBehaviour
         rb.velocity = new Vector3(0, 0, zSpeed);
         solidOn = solidObj.localScale;
         liquidOn = liquidObj.localScale;
-        print(liquidOn);
         gasOn = gasObj.localScale;
         gasParticle = gasObj.gameObject.GetComponent<ParticleSystem>();
         bt2 = GameObject.Find("ToMenu").GetComponent<Button>();
         skip = GameObject.Find("Skip").GetComponent<Button>();
         btRetry = GameObject.Find("Retry").GetComponent<Button>();
         ctn = GameObject.Find("Continue").GetComponent<Button>();
+        gasParticle.Stop();
     }
 
     // Update is called once per frame
@@ -53,14 +58,19 @@ public class Move : MonoBehaviour
 
     void scoreBoard()
     {
-        if (nowScore/2 >= bestScore)
+        if (!newGame)
         {
-            bestScore = nowScore/2;
+            if (nowScore / 2 >= bestScore)
+            {
+                bestScore = nowScore / 2;
+            }
+            score.text = "current score：" + nowScore / 2 + "\nbest record：" + bestScore;
+            PlayerPrefs.SetInt("bestScore", bestScore);
         }
-        score.text = "current score：" + nowScore/2 + " obstacles\nbest record："+bestScore+" obstacles";
-        /*bts = System.Text.Encoding.UTF8.GetBytes(bestScore.ToString());
-        file.Write(bts, 0, bts.Length);*/
-        PlayerPrefs.SetInt("bestScore", bestScore);
+        else
+        {
+            score.text = "";
+        }
     }
     void speedCtl()
     {
@@ -95,6 +105,7 @@ public class Move : MonoBehaviour
 
     public void change2Gas()
     {
+        lastState = state;
         if (state == "liquid")
         {
             animSolid[animSolid.clip.name].time = animSolid[animSolid.clip.name].length;
@@ -106,8 +117,10 @@ public class Move : MonoBehaviour
     }
     public void change2Solid()
     {
+        lastState = state;
         if (state == "liquid")
         {
+            solidObj.localRotation = new Quaternion(-0.7f, 0, 0, 0.7f);
             animSolid[animSolid.clip.name].time = animSolid[animSolid.clip.name].length;
             animSolid[animSolid.clip.name].speed = -1;
             animSolid.Play(animSolid.clip.name);
@@ -118,11 +131,18 @@ public class Move : MonoBehaviour
 
     public void change2Liquid()
     {
+        lastState = state;
         if (state == "solid")
         {
+            solidObj.localRotation = new Quaternion(-0.7f, 0, 0, 0.7f);
             animSolid[animSolid.clip.name].time = 0;
             animSolid[animSolid.clip.name].speed = 1;
             animSolid.Play(animSolid.clip.name);
+            print(animSolid.isPlaying);
+        }
+        if (state == "gas")
+        {
+            liquidObj.localScale = Vector3.Lerp(liquidObj.localScale, new Vector3(0, 0, 0), Time.deltaTime * 10);
         }
         gasParticle.Stop();
         state = "liquid";
@@ -130,46 +150,12 @@ public class Move : MonoBehaviour
 
     void stateCtl()
     {
-        /*if (Input.GetKeyDown("1"))//切换到固体
-        {
-            if (state == "liquid")
-            {
-                animSolid[animSolid.clip.name].time = animSolid[animSolid.clip.name].length;
-                animSolid[animSolid.clip.name].speed = -1;
-                animSolid.Play(animSolid.clip.name);
-            }
-            gasParticle.Stop();
-            state = "solid";
-
-            //sky.color = 
-        }
-        else if (Input.GetKeyDown("2"))//切换到液体
-        {
-            if (state == "solid")
-            {
-                animSolid[animSolid.clip.name].time = 0;
-                animSolid[animSolid.clip.name].speed = 1;
-                animSolid.Play(animSolid.clip.name);
-            }
-            gasParticle.Stop();
-            state = "liquid";
-        }
-        else if (Input.GetKeyDown("3"))//切换到气体
-        {
-            if (state == "liquid")
-            {
-                animSolid[animSolid.clip.name].time = animSolid[animSolid.clip.name].length;
-                animSolid[animSolid.clip.name].speed = -1;
-                animSolid.Play(animSolid.clip.name);
-            }
-            gasParticle.Play();
-            state = "gas";
-        }*/
-
         if (state == "solid")
         {
+            solidObj.Rotate(new Vector3(50 * Time.deltaTime, 0, 0));
+            sky.SetColor("_Color1", Color.Lerp(sky.GetColor("_Color1"), new Color(0, 0, 0.3f), Time.deltaTime));
+            sky.SetColor("_Color2", Color.Lerp(sky.GetColor("_Color2"), new Color(0.7f, 0.9f, 1), Time.deltaTime));
             rb.useGravity = true;
-            //sky.color = new Color(0, 0, 0);
             if (solidObj.localScale.x < 30 && !animSolid.isPlaying)//固体渐渐出现
             {
                 float dScale = solidObj.localScale.x;
@@ -184,18 +170,15 @@ public class Move : MonoBehaviour
         }
         if (state == "liquid")
         {
+            rb.useGravity = true ;
+            sky.SetColor("_Color1", Color.Lerp(sky.GetColor("_Color1"), new Color(0, 0.3f, 0.3f), Time.deltaTime)) ;
+            sky.SetColor("_Color2", Color.Lerp(sky.GetColor("_Color2"), new Color(0.8f, 1, 0.9f), Time.deltaTime));
             waterMaterialChange();
-            rb.useGravity = true;
-            if (Input.GetKeyDown(KeyCode.Space))
+            if(lastState == "gas" &&liquidObj.localScale.x < liquidOn.x)
             {
-                print("state:" + state + "\nisPlaying:" + animSolid.isPlaying + "\nliquid localScale:" + liquidObj.localScale);
+                liquidObj.localScale = Vector3.Lerp(liquidObj.localScale, liquidOn, 1.5f*Time.deltaTime );
             }
-            if (liquidObj.localScale.x < 30 && !animSolid.isPlaying)//液体渐渐出现
-            {
-                float dScale = liquidObj.localScale.x;
-                liquidObj.localScale = new Vector3(dScale + 25f * Time.deltaTime, dScale + 25f * Time.deltaTime, dScale + 25f * Time.deltaTime);
-            }
-            else if(!animSolid.isPlaying)
+            else if (!animSolid.isPlaying)
             {
                 liquidObj.localScale = liquidOn;
                 solidObj.localScale = new Vector3(0, 0, 0);
@@ -204,6 +187,8 @@ public class Move : MonoBehaviour
         }
         if(state == "gas")
         {
+            sky.SetColor("_Color1", Color.Lerp(sky.GetColor("_Color1"), new Color(0.7f, 0, 0), Time.deltaTime));
+            sky.SetColor("_Color2", Color.Lerp(sky.GetColor("_Color2"), new Color(1, 0.85f, 0.65f), Time.deltaTime));
             rb.useGravity = false;
             if (solidObj.localScale.x > 0)//原本的固体/液体模型渐渐消失
             {
@@ -312,32 +297,32 @@ public class Move : MonoBehaviour
         else if(promptName == "Prompt2")
         {
             text.text = "change to fluid to pass";
-            Invoke("delay", 3);
+            //Invoke("delay", 3);
         }
         else if (promptName == "Prompt3")
         {
             text.text = "do not try to pass by fluid";
-            Invoke("delay", 3);
+            //Invoke("delay", 3);
         }
         else if (promptName == "Prompt4")
         {
             text.text = "change to gas to pass";
-            Invoke("delay", 3);
+            //Invoke("delay", 3);
         }
         else if (promptName == "Prompt5")
         {
             text.text = "do not try to pass by gas";
-            Invoke("delay", 3);
+            //Invoke("delay", 3);
         }
         else if (promptName == "Prompt6")
         {
             text.text = "change to solid to pass";
-            Invoke("delay", 3);
+            //Invoke("delay", 3);
         }
         else if (promptName == "Prompt7")
         {
             text.text = "do not try to pass by solid";
-            Invoke("delay", 3);
+            //Invoke("delay", 3);
         }
     }
     
@@ -391,6 +376,8 @@ public class Move : MonoBehaviour
         if (other.gameObject.name == "newGame")
         {
             newGame = false;
+            text.text = "official begin";
+            Invoke("delay", 3);
             //zSpeed += 5;
         }
         if (other.gameObject.tag == "prompt"&&!stop)
@@ -399,7 +386,7 @@ public class Move : MonoBehaviour
             promptCtl(other.name);
             stop = true;
             stop1 = true;
-            ctn.transform.localScale = new Vector3(1, 1, 1);
+            ctn.transform.localScale = new Vector3(1.5f, 1.5f, 1);
         }
     }
 
@@ -408,9 +395,53 @@ public class Move : MonoBehaviour
         float tX = 1.5f, tY = 1.5f, oX = 0.5f , oY = 0.5f;
         Vector2 nowTiling = liquidMaterial.GetTextureScale("_MainTex");
         Vector2 nowOffset = liquidMaterial.GetTextureOffset("_MainTex");
-        liquidMaterial.SetTextureScale("_MainTex", new Vector2(nowTiling.x + Random.Range(-1f, 1f) * Time.deltaTime,
-            nowTiling.y + Random.Range(-1f, 1) * Time.deltaTime));
-        liquidMaterial.SetTextureOffset("_MainTex", new Vector2(nowOffset.x + Random.Range(-1f, 1f) * Time.deltaTime,
-            nowOffset.y + Random.Range(-1f, 1f) * Time.deltaTime));
+        float paceX1 = 0.5f, paceY1 = 0.5f, paceX2 = 0.5f, paceY2=0.5f;
+        float rate = 0.05f;
+        if (nowTiling.x > 2)
+        {
+            paceX1 = -rate;
+            nowTiling.x = 2;
+        }
+        else if (nowTiling.x < 1)
+        {
+            paceX1 = rate;
+            nowTiling.x = 1;
+        }
+        if (nowTiling.y > 2f)
+        {
+            paceY1 = -rate;
+            nowTiling.y = 2f;
+        }
+        else if (nowTiling.y < 1)
+        {
+            paceY1 = rate;
+            nowTiling.y = 1;
+        }
+        // nowOffset
+        if (nowTiling.x > 0.5)
+        {
+            paceX2 = -rate;
+            nowTiling.x = 0.5f;
+        }
+        else if (nowTiling.x < -0.5)
+        {
+            paceX2 = rate;
+            nowTiling.x = 1;
+        }
+        if (nowTiling.y > 0.5f)
+        {
+            paceY2 = -rate;
+            nowTiling.y = 0.5f;
+        }
+        else if (nowTiling.x < -0.5)
+        {
+            paceY2 = rate;
+            nowTiling.x = -0.5f;
+        }
+
+        liquidMaterial.SetTextureScale("_MainTex", new Vector2(nowTiling.x + paceX1 * Time.deltaTime,
+            nowTiling.y +  paceY1 * Time.deltaTime));
+        liquidMaterial.SetTextureOffset("_MainTex", new Vector2(nowOffset.x + paceX2 * Time.deltaTime,
+            nowOffset.y +paceY2 * Time.deltaTime));
     }
 }

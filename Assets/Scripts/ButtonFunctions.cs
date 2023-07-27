@@ -25,7 +25,6 @@ public class ButtonFunctions : MonoBehaviour
         btContinue = GameObject.Find("Continue").GetComponent<Button>();
         btRetry = GameObject.Find("Retry").GetComponent<Button>();
         btPause = GameObject.Find("Pause").GetComponent<Button>();
-        btCtn = GameObject.Find("Continue").GetComponent<Button>();
         ball = GameObject.Find("AllBall").transform;
         newGameTransform = GameObject.Find("newGame").transform;
         pausing = GameObject.Find("Pausing");
@@ -37,15 +36,22 @@ public class ButtonFunctions : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //print("stop:" + Move.stop + " stop1:" + Move.stop1);
-        /*if (!Move.newGame)
+        if (Move.newGame)
+        {
+            btSkip.transform.localScale = new Vector3(1.5f, 1.5f, 0);
+        }
+        else
         {
             btSkip.transform.localScale = new Vector3(0, 0, 0);
-        }*/
-        /*else
+        }
+        if (btContinue.transform.localScale.x > 0)
         {
-            btSkip.transform.localScale = new Vector3(1, 1, 0);
-        }*/
+            btPause.transform.localScale = new Vector3(0, 0, 0);
+        }
+        else
+        {
+            btPause.transform.localScale = new Vector3(1.5f, 1.5f, 1);
+        }
     }
     public void gameStart()
     {
@@ -54,21 +60,10 @@ public class ButtonFunctions : MonoBehaviour
         Move.stop1 = false;
         Move.zSpeed = 10;
         theme.transform.localScale = new Vector3(0, 0, 0);
-        btPause.transform.localScale = new Vector3(1, 1, 1);
+        btPause.transform.localScale = new Vector3(1.5f, 1.5f, 1);
         btStart.transform.localScale = new Vector3(0, 0, 0);
         btToMenu.transform.localScale = new Vector3(0, 0, 0);
-        //btToMenu2.transform.localScale = new Vector3(0, 0, 0);
-        //btContinue.transform.localScale = new Vector3(0, 0, 0);
         btExit.transform.localScale = new Vector3(0, 0, 0);
-        if (Move.newGame)
-        {
-            btSkip.transform.localScale = new Vector3(1, 1, 0);
-        }
-        else
-        {
-            btSkip.transform.localScale = new Vector3(0, 0, 0);
-        }
-        //btPause.transform.localScale = new Vector3(1, 1, 1);
     }
 
     public void gameExit()
@@ -87,12 +82,11 @@ public class ButtonFunctions : MonoBehaviour
 
     public void skipTutorial()
     {
-        /* Debug.Log(ball);
-         Debug.Log(newGameTransform);*/
         GenerateRoad.startGenerate = true;
         ball.position = new Vector3(ball.position.x, ball.position.y, newGameTransform.position.z + 10f);
-        text.text = " ";
+        text.text = "";
         btSkip.transform.localScale = new Vector3(0, 0, 0);
+        btContinue.transform.localScale = new Vector3(0, 0, 0);
         Move.newGame = false;
         gameStart();
     }
@@ -119,11 +113,10 @@ public class ButtonFunctions : MonoBehaviour
             {
                 text.text = totalTime.ToString();
             }
-            Debug.Log(totalTime + " text:" + text.text);
             yield return new WaitForSeconds(1);
             totalTime--;
         }
-        text.text = " ";
+        text.text = "";
         Move.stop = false;
         Move.stop1 = false;
         totalTime = 4;
@@ -134,19 +127,20 @@ public class ButtonFunctions : MonoBehaviour
         btContinue.transform.localScale = new Vector3(0, 0, 0);
         Move.stop1 = false;
         Move.stop1 = false;
-        text.text = " ";
+        text.text = "";
     }
 
     public void pause()
     {
         btPause.transform.localScale = new Vector3(0, 0, 0);
-        pausing.transform.localScale = new Vector3(10, 6, 0);
+        pausing.layer = 30;
+        pausing.transform.localScale = new Vector3(12, 12, 0);
         Time.timeScale = 0;
     }
 
     public void ctn()
     {
-        btPause.transform.localScale = new Vector3(1, 1, 1);
+        btPause.transform.localScale = new Vector3(1.5f, 1.5f, 1);
         pausing.transform.localScale = new Vector3(0, 0, 0);
         Time.timeScale = 1;
     }

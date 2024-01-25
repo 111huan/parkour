@@ -24,6 +24,7 @@ public class Move : MonoBehaviour
     Transform allBall;
     void Start()
     {
+        PlayerPrefs.SetInt("bestScore", 5);
         stop = true;
         stop1 = true;
         state = "solid";
@@ -174,9 +175,9 @@ public class Move : MonoBehaviour
             sky.SetColor("_Color1", Color.Lerp(sky.GetColor("_Color1"), new Color(0, 0.3f, 0.3f), Time.deltaTime)) ;
             sky.SetColor("_Color2", Color.Lerp(sky.GetColor("_Color2"), new Color(0.8f, 1, 0.9f), Time.deltaTime));
             waterMaterialChange();
-            if(lastState == "gas" &&liquidObj.localScale.x < liquidOn.x)
+            if (lastState == "gas" && liquidObj.localScale.x < liquidOn.x)
             {
-                liquidObj.localScale = Vector3.Lerp(liquidObj.localScale, liquidOn, 1.5f*Time.deltaTime );
+                liquidObj.localScale = Vector3.Lerp(liquidObj.localScale, liquidOn, 1.5f * Time.deltaTime);
             }
             else if (!animSolid.isPlaying)
             {
